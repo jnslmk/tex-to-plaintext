@@ -1,6 +1,7 @@
 import argparse
 import re
 
+
 def _parse_args():
     """
     Parses input and output file parameters from command line arguments, provides help documentation and error handling
@@ -22,40 +23,60 @@ def _parse_args():
     return args.input, args.output
 
 
-def _clean_line(line):
-    """
-    Fixes linebreaks between lines and removes TeX commands from text.
+class LineCeaner:
+    """Line cleaning class"""
 
-    Parameters
-    ----------
-    line : str
-        Line of TeX file
+    def __init__(self):
+        self.f_newline = False
 
-    Returns
-    -------
-    line : str
-        Processed line
-    """
-    if line == '\n':
-        return '\n\n'
-    if line.startswith('%'):
-        return ''
+    def clean_line(self, line):
+        """
+        Fixes linebreaks between lines and removes TeX commands from text.
 
-    if line.endswith('\n'):
-        line = line[:-1]
+        Parameters
+        ----------
+        line : str
+            Line of TeX file
 
-    if line.startswith(' '):
-        line = line[1:]
+        Returns
+        -------
+        line : str
+            Processed line
+        """
+        # Insert empty newlines add end of paragraphs
+        if line == '\n':
+            # Prevent insertion of duplicate newlines
+            if self.f_newline:
+                return ''
+            else:
+                self.f_newline = True
+                return '\n\n'
+        else:
+            self.f_newline = False
 
-    if not line.endswith(' '):
-        line += ' '
+        # Remove comments
+        if line.startswith('%'):
+            return ''
 
-    rgx_header = r'(?:(?:chapter)|(?:section)|(?:subsection)){(?:\w| )+}'
-    match = re.match(rgx_header, line)
-    if match is not None:
-        line = match.group(1) + '\n'
+        # Remove linebreaks within paragraphs
+        if line.endswith('\n'):
+            line = line[:-1]
 
-    return line
+        # Remove whitespace from begin of line
+        if line.startswith(' '):
+            line = line[1:]
+
+        # Add whitespace at end of line for lines within paragraphs
+        if not line.endswith(' '):
+            line += ' '
+
+        # Remove header commands and insert newline after header
+        rgx_header = r'(?:(?:chapter)|(?:section)|(?:subsection)){((?:\w| )+)}'
+        match = re.search(rgx_header, line)
+        if match is not None:
+            line = match.group(1) + '\n'
+
+        return line
 
 
 def _convert_to_text(path_in, path_out):
@@ -70,9 +91,10 @@ def _convert_to_text(path_in, path_out):
         Path to output file
     """
     out = ''
+    lc = LineCeaner()
     with open(path_in, 'r') as f:
         for line in f:
-            line = _clean_line(line)
+            line = lc.clean_line(line)
             out += line
     with open(path_out, 'w') as f:
         f.write(out)

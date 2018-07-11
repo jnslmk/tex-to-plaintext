@@ -54,6 +54,9 @@ class LineCeaner:
         # Remove comments
         elif line.startswith('%'):
             return ''
+        # Remove labels
+        elif line.startswith('\\label'):
+            return ''
         else:
             self.f_newline = False
 

@@ -51,12 +51,11 @@ class LineCeaner:
             else:
                 self.f_newline = True
                 return '\n\n'
+        # Remove comments
+        elif line.startswith('%'):
+            return ''
         else:
             self.f_newline = False
-
-        # Remove comments
-        if line.startswith('%'):
-            return ''
 
         # Remove linebreaks within paragraphs
         if line.endswith('\n'):

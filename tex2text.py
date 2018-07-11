@@ -78,6 +78,16 @@ class LineCeaner:
         if match is not None:
             line = match.group(1) + '\n'
 
+        # Insert linebreaks before and after nomenclature
+        if line.startswith('\\nomenclature'):
+            line = '\n' + line
+            if not line.endswith('\n'):
+                line += '\n'
+
+        # Remove citations
+        if re.search(r'\\cite{.+}', line):
+            line = re.sub(r'\\cite{.+}', 'X', line)
+
         return line
 
 

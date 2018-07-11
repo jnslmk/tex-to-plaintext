@@ -23,7 +23,7 @@ def _parse_args():
     return args.input, args.output
 
 
-class LineCeaner:
+class LineCleaner:
     """Line cleaning class"""
 
     def __init__(self):
@@ -103,7 +103,7 @@ def _convert_to_text(path_in, path_out):
         Path to output file
     """
     out = ''
-    lc = LineCeaner()
+    lc = LineCleaner()
     with open(path_in, 'r') as f:
         for line in f:
             line = lc.clean_line(line)
